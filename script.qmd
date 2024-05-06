@@ -1,0 +1,34 @@
+---
+title: "Newsify"
+format: 
+    pdf: 
+        toc: false
+        toc-depth: 2
+        number-sections: true
+        code-block-border-left: true
+        colorlinks: true
+author: "Ezra Sharpe"
+execute:
+    engine: python
+---
+
+### Part 1 - Setup 
+
+```{python}
+
+import os
+print(os.environ)
+
+# assign openAI key to variable
+openai_key = os.getenv('OPENAI_API_KEY')
+print(f"API key: {openai_key}")
+keys = [openai_key]
+
+def keys_available(keys):
+    # check if keys are available
+    return [type(key) for key in keys]
+
+print(f"All API keys should be strings: {keys_available(keys)}")
+
+```
+
