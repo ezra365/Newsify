@@ -17,18 +17,92 @@ execute:
 ```{python}
 
 import os
-print(os.environ)
+import json
 
-# assign openAI key to variable
-openai_key = os.getenv('OPENAI_API_KEY')
-print(f"API key: {openai_key}")
-keys = [openai_key]
+# Load API keys from a JSON file
+def load_api_keys(filename):
+    with open(filename, 'r') as file:
+        keys = json.load(file)
+    return keys
 
-def keys_available(keys):
-    # check if keys are available
-    return [type(key) for key in keys]
+# Get the API key
+api_keys = load_api_keys('key.json')
+openai_api_key = api_keys.get('OPENAI_API_KEY')
 
-print(f"All API keys should be strings: {keys_available(keys)}")
+
+def keys_available(api_key):
+    # Checking it loaded succesfully
+    return type(api_key)
+
+# The API key should be a string, let's check without printing key
+print(f"The API key type is: {keys_available(openai_api_key)}")
+
+```
+
+### Part 2 - Webscrape Articles
+
+```{python}
+import requests
+import time as t
+from bs4 import BeautifulSoup
+from enum import Enum
+from datetime import datetime, timedelta
+
+url = "https://www.reuters.com/technology/"
+
+class Date(Enum):
+  today = 'today'
+  yesterday = 'yesterday'
+  more = 'more'
+
+  def __str__(self):
+      return self.value
+
+def get_text(detail_url):
+    info = BeautifulSoup(requests.get(detail_url).text, 'html.parser')
+    return '\n'.join([p.text.strip() for p in info.select_one('div[class*="article__content"]').findChildren('p', recursive=False)])
+
+def scrape(date = Date.today):
+  rr = requests.get( url )
+  soup = BeautifulSoup(rr.text, "html.parser")
+  articles = soup.find_all('li', class_=lambda x: x and 'story-collection' in x.split())
+
+  print('#### input ###')
+  print('date: ', date)
+  print('#### === ### \n')
+  data = []
+  
+  for article in articles:
+    t.sleep(5)
+    time = article.time.text.strip()
+    item = {
+        'title': article.h2.text.strip(),
+        'url': article.a['href']
+    }
+    
+    print(item)
+    print('time: ', time)
+    
+    
+scrape(Date.today)
+
+```
+
+
+    time_obj = datetime.strptime(time, '%B %d, %Y %H:%M %p').date()
+    if date == Date.today:
+      if time_obj == datetime.today().date():
+        item['text'] = get_text(article.a['href'])
+        data.append(item)
+    elif date == Date.yesterday:
+      if time_obj == (datetime.today() - timedelta(days=1)).date():
+        item['text'] = get_text(article.a['href'])
+        data.append(item)
+    elif date == Date.more:
+      item['text'] = get_text(article.a['href'])
+      data.append(item)
+
+  return data
 
 ```
 
