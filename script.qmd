@@ -50,10 +50,11 @@ import requests
 import time as t
 from bs4 import BeautifulSoup
 from enum import Enum
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, date
 from selenium import webdriver
 
-url = "https://techcrunch.com/category/artificial-intelligence/"
+# Change the URL above to any of TechCrunch's categories which suit your needs!
+url = "https://techcrunch.com/category/security/" 
 
 driver = webdriver.Chrome()
 driver.get(url)
@@ -74,9 +75,8 @@ def get_text(detail_url):
         return None  # Or any appropriate value or indication that no content was found
 
 
-def scrape(date = Date.today):
-  #rr = requests.get( url )
-
+def scrape(date = date.today()):
+  
   soup = BeautifulSoup(html, "lxml")
 
   articles = soup.find_all('article', class_=["post-block", "post-block--image", "post-block--unread"])
@@ -88,7 +88,7 @@ def scrape(date = Date.today):
   print('date: ', date)
   print('#### === ### \n')
   data = []
-  for article in articles[:10]: # limit to 10 articles for now
+  for article in articles[:10]: # limit to 10 articles for now, but feel free to change based on your needs
     t.sleep(2)
     item = {
         'title': article.h2.text.strip(),
@@ -99,7 +99,7 @@ def scrape(date = Date.today):
 
   return data
     
-date = Date.today # we want the news from today's date
+date = date.today() # we want the news from today's date
 data = scrape(date)
 print('total articles:', len(data))
 
@@ -117,8 +117,8 @@ from langchain.schema import (
 
 def get_template(title, text):
 
-  # prepare template for prompt
-  template = """You are an advanced ai assistant that summarizes online articles.
+  # prepare template for prompt and experiment with prompt engineering
+  template = """You are an advanced ai assistant that summarizes online articles about developments in technology.
 
   Here's the article you need to summarize:
   ==========================
@@ -127,7 +127,7 @@ def get_template(title, text):
   Text: {article_text}
   ==========================
 
-  Write a summary of the previous article in 200 words or less, with a particular focus on giving key details and examples directly from the article.
+  Write a summary of the previous article in 200 words or less, with a particular focus on giving key details, main points, and examples directly from the article.
   """
 
   prompt = template.format(article_title=title, article_text=text)
@@ -163,46 +163,33 @@ def summarize_articles(data):
   markdown_string = ''.join(markdown_list)
   return markdown_string
 
-    
-#@title Article Summaries
 summaries = summarize_articles(data)
 Markdown(summaries)
 
 ```
 
-**Meta’s new multi-token prediction makes AI models up to 3X faster**
+### Part 4 - give me feedback for iterative improvement
 
-A recent study by Meta, Ecole des Ponts ParisTech, and Université Paris-Saclay proposes a new approach to training large language models (LLMs) called multi-token prediction. This method involves predicting multiple tokens simultaneously, in contrast to the traditional next-token prediction. The researchers found that multi-token prediction can improve the speed and accuracy of LLMs, especially on generative tasks, with up to three times faster inference times. The study tested models of varying sizes and found that larger models benefit more from multi-token prediction. Additionally, this approach promotes learning longer-term patterns, particularly in tasks like byte-level tokenization. While there is still room for improvement, the researchers believe that multi-token prediction could be a valuable tool for enhancing LLM applications, offering faster inference and higher accuracy without significant additional costs. This research has the potential to benefit enterprise applications, particularly in tasks like code completion. View Full
+```{python}
 
-**Nvidia and Alphabet’s Intrinsic aim to revolutionize next-gen robotics**
+import requests
 
-Nvidia and Alphabet's Intrinsic have joined forces to showcase advancements in robotic grasping and industrial scalability at the Automate trade show. The collaboration introduces the Isaac Manipulator, a groundbreaking tool for industrial automation that utilizes transformer deep learning architecture to enable robots to perceive and make decisions autonomously. This partnership aims to create a universally applicable robotic-grasping skill that can seamlessly work across various grippers, environments, and objects. By integrating Nvidia Isaac Sim on the Omniverse platform, Intrinsic has leveraged simulation to generate synthetic data for vacuum grasping, leading to significant advancements in industrial automation. The development focuses on improving robot grip, a historically challenging skill to program and scale efficiently. The companies are set to demonstrate their collaborative efforts in automating smart pick-and-place tasks at the Automate trade show, showcasing the potential of state-of-the-art dexterity and modular AI capabilities in robotic arms. View Full
+def submit_feedback(url, summary, rating, comment=''):
+    feedback_data = {
+        "url": url,
+        "summary": summary,
+        "rating": rating,
+        "comment": comment
+    }
+    response = requests.post("http://127.0.0.1:5000/submit_feedback", json=feedback_data)
+    return response.json()
 
-**Open-source or closed-source AI? Data quality and adaptability matter more**
+# Example usage - please fill in your own so I can iterate on the prompt engineering
+url = "https://example.com/article"
+summary = "This is a summary of the article."
+rating = "Excellent"
+comment = "I found the summary very informative and well-written."
+response = submit_feedback(url, summary, rating, comment)
+print(response)
 
-The article discusses the debate between open-source and closed-source AI, highlighting that data quality and adaptability are more important factors to consider. It emphasizes that the success of AI systems depends on the quality of the data used to train them, rather than whether the code is open or closed-source. The article provides examples of how companies like Google and Facebook have successfully utilized open-source AI frameworks like TensorFlow, while also stressing the importance of adaptability in AI systems to handle changing environments and tasks. Overall, the article argues that focusing on data quality and adaptability is crucial for the effectiveness of AI systems, regardless of whether they are open or closed-source. View Full
-
-**Exclusive: Sagetap raises $6.8 million to build AI-powered marketplace for enterprise software**
-
-Sagetap, a startup, has raised $6.8 million in seed funding to create an AI-powered marketplace for enterprise software procurement. The platform matches technology executives with software vendors through AI-driven recommendations, facilitating anonymous introductory meetings. With 14,000 vetted vendors and 5,000 verified technology executives on board, Sagetap aims to revolutionize software buying by providing targeted, personalized interactions. The startup differentiates itself from industry analyst firms like Gartner by offering direct, anonymous interactions and deep understanding of buyers' needs. Despite facing challenges in building liquidity and reaching critical mass, Sagetap's early traction has garnered support from customers like Oracle and Dell. With the funding, Sagetap aims to modernize software procurement by leveraging AI to streamline the process for both buyers and sellers in the enterprise software market. View Full
-
-**Gen AI innovation race is leading to security gaps, according to IBM and AWS**
-
-The Gen AI innovation race between companies like IBM and AWS is resulting in security gaps, according to a recent report. The rapid development of AI technologies has led to a focus on innovation, often at the expense of security measures. IBM and AWS are both pushing the boundaries of AI capabilities, but this has also created vulnerabilities that hackers can exploit. For example, IBM's Watson AI platform has been used in various industries, but its complexity also makes it a target for cyber attacks. Similarly, AWS's AI services have been praised for their efficiency, but they also face challenges in ensuring data privacy and security. Overall, the article highlights the need for companies to prioritize security in their AI development efforts to prevent potential breaches and protect sensitive information. View Full
-
-**New Gemini-powered Google Threat Intelligence platform fuses data from Mandiant, VirusTotal**
-
-Google Cloud has launched a new Threat Intelligence platform that integrates Gemini AI with data from VirusTotal and Mandiant. This platform aims to provide security teams with the latest knowledge on threats by combining Google's deep visibility with crowdsourced intelligence from VirusTotal and research from Mandiant. The Gemini 1.5 model allows users to ask questions and receive answers based on a search across the repositories of threat intelligence. This model can analyze malware samples with a long context window of up to 1 million tokens, simplifying the process of reverse engineering malware. The platform automates tasks, condenses large datasets, and connects new threats into workflows, enabling security teams to quickly assess and respond to emerging threats. Overall, Google Threat Intelligence aims to empower security teams, automate tasks, and provide actionable threat intelligence to better protect organizations. View Full
-
-**Puzzle leverages AI and machine learning to automate accounting for startups**
-
-Puzzle, led by CEO Sasha Orloff, is revolutionizing accounting for startups using advanced AI and machine learning technologies. The platform automates tasks like transaction categorization, reconciliation, and anomaly detection, ensuring completeness and accuracy in financial reporting. By leveraging natural language processing and human oversight, Puzzle can handle complex edge cases and exceptions that traditional software struggles with. The AI continuously learns and improves based on human feedback, providing peace of mind for startups dealing with tax, fundraising, and board reporting concerns. The platform generates financial statements, reviews them, and provides reports on anomalies and inconsistencies, streamlining the accounting process for founders and CFOs. With Puzzle's AI-driven approach, startups can scale quickly with confidence and clarity, making data-driven decisions to propel their companies forward in the competitive landscape of entrepreneurship. Overall, Puzzle's innovative use of AI in accounting showcases the transformative potential of technology in high-stakes domains, promising a more efficient and intelligent future for financial reporting in the startup world. View Full
-
-**Hugging Face launches LeRobot open source robotics code library**
-
-Hugging Face, a prominent AI developer startup, has launched LeRobot, an open-source robotics toolkit led by former Tesla staff scientist Remi Cadene. This initiative aims to democratize AI robotics and inspire a new generation of roboticists by providing a comprehensive platform on Github. LeRobot includes a versatile library for data sharing, training models, and accessing pretrained models. It seamlessly integrates with physics simulators for virtual testing and supports a wide range of robotic hardware, from simple arms to advanced humanoids. The decision to make LeRobot open-source is strategic, promoting global collaboration and innovation in AI robotics. Hugging Face is building the largest crowdsourced robotics dataset with contributions from various entities to advance smart robots in the real world. By fostering a community of shared knowledge and resources, Hugging Face seeks to redefine the landscape of AI robotics. View Full
-
-**Exclusive: Alembic debuts hallucination-free AI for enterprise data analysis and decision support**
-
-Alembic, an AI startup, has developed a new AI system that eliminates the generation of false information, known as "hallucinations," in enterprise data analysis. The key breakthrough is the ability to identify causal relationships, not just correlations, across massive datasets over time. This AI system uses a time-aware graph neural network to understand how different events and data points relate to each other, ultimately predicting future outcomes and recommending interventions. Alembic's technology has garnered interest from 9% of the Fortune 500 and received endorsements from experts at Nvidia. The company aims to address trust issues in AI adoption and accelerate deployment across industries. While positioned to disrupt the enterprise AI market, Alembic must prove its technology can scale and drive concrete results for large enterprises. The "hallucination-free" approach could be a key selling point in the competitive AI landscape. View Full
-
+```
