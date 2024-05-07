@@ -42,53 +42,48 @@ print(f"The API key type is: {keys_available(openai_api_key)}")
 ### Part 2 - Webscrape Articles
 
 ```{python}
-import requests
-import time as t
-from bs4 import BeautifulSoup
-from enum import Enum
-from datetime import datetime, timedelta
 
-url = "https://www.reuters.com/technology/"
+url = "https://venturebeat.com/category/ai/"
 
 class Date(Enum):
   today = 'today'
   yesterday = 'yesterday'
   more = 'more'
 
-  def __str__(self):
+def __str__(self):
       return self.value
 
 def get_text(detail_url):
     info = BeautifulSoup(requests.get(detail_url).text, 'html.parser')
-    return '\n'.join([p.text.strip() for p in info.select_one('div[class*="article__content"]').findChildren('p', recursive=False)])
+    article_content = info.select_one('div.article-content')
+    if article_content:
+        return '\n'.join([p.text.strip() for p in article_content.findChildren('p', recursive=False)])
+    else:
+        return None  # Or any appropriate value or indication that no content was found
+
 
 def scrape(date = Date.today):
   rr = requests.get( url )
+
   soup = BeautifulSoup(rr.text, "html.parser")
-  articles = soup.find_all('li', class_=lambda x: x and 'story-collection' in x.split())
+
+
+  articles= soup.find_all('article', class_='ArticleListing')
 
   print('#### input ###')
   print('date: ', date)
   print('#### === ### \n')
   data = []
-  
   for article in articles:
-    t.sleep(5)
+    t.sleep(2)
+    if not article.time:
+      continue
     time = article.time.text.strip()
     item = {
         'title': article.h2.text.strip(),
-        'url': article.a['href']
+        'url': article.a['href'],
+        'time': time
     }
-    
-    print(item)
-    print('time: ', time)
-    
-    
-scrape(Date.today)
-
-```
-
-
     time_obj = datetime.strptime(time, '%B %d, %Y %H:%M %p').date()
     if date == Date.today:
       if time_obj == datetime.today().date():
@@ -103,6 +98,91 @@ scrape(Date.today)
       data.append(item)
 
   return data
+     
+
+#@title Select days to pull news {run: "auto"}
+
+period = 'yesterday' #@param ['today', 'yesterday', 'more']
+
+def get_date(period):
+  if period == 'today':
+    return Date.today
+  elif period == 'yesterday':
+    return Date.yesterday
+  else:
+    return Date.more
+     
+
+#@title Scraper Results
+date = get_date(period)
+data = scrape(date)
+print('total articles:', len(data))
 
 ```
 
+### Part 3 - Generate Summaries
+
+```{python}
+
+from IPython.display import Markdown
+from langchain_openai import ChatOpenAI
+from langchain.schema import (
+    HumanMessage
+)
+
+def get_template(title, text):
+
+  # prepare template for prompt
+  template = """You are an advanced ai assistant that summarizes online articles.
+
+  Here's the article you need to summarize:
+  ==========================
+  Title: {article_title}
+
+  Text: {article_text}
+  ==========================
+
+  Write a summary of the previous article in 200 words or less, with a particular focus on communicating the key messages.
+  """
+
+  prompt = template.format(article_title=title, article_text=text)
+
+  messages = [HumanMessage(content=prompt)]
+  return messages
+
+def get_summary(messages, openai_api_key):
+    # instantiate model with API key
+    chat = ChatOpenAI(api_key=openai_api_key, temperature=0)
+
+    # generate summary
+    summary = chat(messages)
+    return summary.content
+
+
+def get_output(article):
+  title = article['title']
+  url = article['url']
+  date = article['time']
+  text = article['text']
+
+  messages = get_template(title, text)
+  summary = get_summary(messages, openai_api_key)
+  output = f"**{title}** {summary} [View Full]({url})"
+  return output
+
+def summarize_articles(data):
+  markdown_list = []
+  for article in data:
+    t.sleep(30) # can only process 3 requests per minute on free account
+    output = get_output(article)
+    markdown_list.append(output)
+
+  markdown_string = ''.join(markdown_list)
+  return markdown_string
+
+    
+#@title Article Summaries
+summaries = summarize_articles(data)
+Markdown(summaries)
+
+```
