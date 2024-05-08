@@ -5,9 +5,11 @@ import psycopg2
 app = Flask(__name__)
 
 # Connect to the PostgreSQL database using the Heroku DATABASE_URL
-DATABASE_URL = 'postgres://pmcgyafbarbajp:eddcb52c2375ca02b332a95ab641bcd994e5d7ff03246902c203e67db629cba9@ec2-100-27-119-164.compute-1.amazonaws.com:5432/d751lpek1arnl'
+DATABASE_URL = 'postgres://ohmzvcmsviurnx:948bb8a0626aeffadf223a3e27b5aead9ffea52bc5f981cd8a110cf6087ef98c@ec2-52-72-109-141.compute-1.amazonaws.com:5432/d20q4tjrv08pk3'
 conn = psycopg2.connect(DATABASE_URL, sslmode='require')
 cur = conn.cursor()
+
+print(DATABASE_URL)
 
 # Create the feedback table if it doesn't exist
 cur.execute('''CREATE TABLE IF NOT EXISTS feedback
