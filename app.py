@@ -56,5 +56,18 @@ def view_feedback():
 
     return jsonify({"feedback": feedback_list})
 
+@app.route('/sync_feedback', methods=['POST'])
+def sync_feedback():
+    data = request.get_json()
+
+    conn = sqlite3.connect('feedback.db')
+    c = conn.cursor()
+    c.executemany("INSERT INTO feedback (url, summary, rating, comment) VALUES (?, ?, ?, ?)",
+                  [(f['url'], f['summary'], f['rating'], f['comment']) for f in data['feedback']])
+    conn.commit()
+    conn.close()
+
+    return jsonify({"message": "Feedback synchronized successfully!"})
+
 if __name__ == '__main__':
     app.run(debug=True)
