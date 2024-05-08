@@ -168,7 +168,7 @@ Markdown(summaries)
 
 ```
 
-### Part 4 - give me feedback for iterative improvement
+### Part 4 - give me feedback for iterative improvement!
 
 ```{python}
 
@@ -193,3 +193,11 @@ response = submit_feedback(url, summary, rating, comment)
 print(response)
 
 ```
+
+open terminal
+run python app.py in your terminal. You will see a server is running - keep it running
+open script.qmd 
+run the last chunk of code above. You don't need to run anything else 
+Once youve succesfully run final chunk, you can end the terminal server (ctrl+c in terminal)
+
+Done - thanks.
