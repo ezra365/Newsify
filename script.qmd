@@ -187,18 +187,12 @@ def submit_feedback(url, summary, rating, comment=''):
 # Example usage
 url = "https://example.com/article"
 summary = "This is a summary of the article."
-rating = "Excellent"
+rating = "Excellent" # Please capitalise the first letter of the rating for consistency
 comment = "I found the summary very informative and well-written."
 response = submit_feedback(url, summary, rating, comment)
 print(response)
 
-# heroku pg:psql - command to open postgresql interface in terminal 
+# heroku pg:psql - command to open postgresql interface in terminal and view feedback
+
 ```
 
-open terminal
-run python app.py in your terminal. You will see a server is running - keep it running
-open script.qmd 
-run the last chunk of code above. You don't need to run anything else 
-Once youve succesfully run final chunk, you can end the terminal server (ctrl+c in terminal)
-
-Done - thanks.
