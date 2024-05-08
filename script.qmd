@@ -181,10 +181,10 @@ def submit_feedback(url, summary, rating, comment=''):
         "rating": rating,
         "comment": comment
     }
-    response = requests.post("http://127.0.0.1:5000/submit_feedback", json=feedback_data)
+    response = requests.post("https://newsify-dc426740efa8.herokuapp.com/submit_feedback", json=feedback_data)
     return response.json()
 
-# Example usage - please fill in your own so I can iterate on the prompt engineering
+# Example usage
 url = "https://example.com/article"
 summary = "This is a summary of the article."
 rating = "Excellent"
@@ -192,6 +192,7 @@ comment = "I found the summary very informative and well-written."
 response = submit_feedback(url, summary, rating, comment)
 print(response)
 
+# heroku pg:psql - command to open postgresql interface in terminal 
 ```
 
 open terminal
