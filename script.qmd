@@ -187,12 +187,12 @@ def submit_feedback(url, summary, rating, comment=''):
 # Example usage
 url = "https://example.com/article"
 summary = "This is a summary of the article."
-rating = "Ezra" # Please capitalise the first letter of the rating for consistency
+rating = "Excellent" # Please capitalise the first letter of the rating for consistency
 comment = "I found the summary very informative and well-written."
 response = submit_feedback(url, summary, rating, comment)
 print(response)
 
-# heroku pg:psql - command to open postgresql interface in terminal and view feedback
+# heroku pg:psql - command to open postgresql interface in terminal and view feedback (personal reminder)
 
 ```
 
