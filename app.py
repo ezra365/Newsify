@@ -14,6 +14,10 @@ cur.execute('''CREATE TABLE IF NOT EXISTS feedback
                 (id SERIAL PRIMARY KEY, url TEXT, summary TEXT, rating TEXT, comment TEXT)''')
 conn.commit()
 
+@app.route('/')
+def index():
+    return "Newsify App is running!"
+
 @app.route('/submit_feedback', methods=['POST'])
 def submit_feedback():
     data = request.get_json()
