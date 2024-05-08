@@ -15,6 +15,6 @@ Below is a set of general instructions on how to use the tool.
 
 5) Run the script in chunk 3 to generate summaries for the articles scraped in chunk 2. The code will generate summaries for each article and save them in a dictionary. You may also choose to change the prompt engineering in the template to further suit your specific requirements.
 
-6) Input some feedback on the summaries in chunk 4 and run the code to upload a feedback form to a database hosted on a Heroku SQL server. This will allow me to better understand specific use-cases and improve the quality of the model and prompt engineering accordingly.
+6) Input some feedback on the summaries in chunk 4 and run the code to upload a feedback form to a database hosted on a Heroku SQL server. This will allow me to better understand specific use-cases and improve both the quality of the model and the prompt engineering accordingly.
 
 Thanks for using!
